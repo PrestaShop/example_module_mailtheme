@@ -1,0 +1,7 @@
+admin_example_module_mailtheme:
+  path: /example/module_mailtheme
+  methods: [GET]
+  defaults:
+    _controller: 'PrestaShop\Module\ExampleModuleMailtheme\Controller\Admin\ExampleModuleMailthemeController::indexAction'
+    _legacy_controller: ExampleModuleMailtheme
+    _legacy_link: ExampleModuleMailtheme
