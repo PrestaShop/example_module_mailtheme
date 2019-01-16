@@ -34,6 +34,8 @@ use PrestaShop\PrestaShop\Core\MailTemplate\MailLayoutCatalogInterface;
 use PrestaShop\PrestaShop\Core\MailTemplate\MailLayoutFolderCatalog;
 use PrestaShop\PrestaShop\Core\MailTemplate\MailLayoutVariablesBuilderInterface;
 use PrestaShop\PrestaShop\Core\MailTemplate\MailLayoutCollectionInterface;
+use PrestaShop\PrestaShop\Core\MailTemplate\MailLayout;
+use PrestaShop\PrestaShop\Core\MailTemplate\MailLayoutInterface;
 use PrestaShop\PrestaShop\Core\MailTemplate\MailThemeCollectionInterface;
 use PrestaShop\PrestaShop\Core\MailTemplate\MailTheme;
 
@@ -163,12 +165,32 @@ class example_module_mailtheme extends Module
 
         /** @var MailLayoutCollectionInterface $layouts */
         $layouts = $hookParams['mailThemeLayouts'];
-        $layouts->add(new \PrestaShop\PrestaShop\Core\MailTemplate\MailLayout(
+        $layouts->add(new MailLayout(
             'customized_template',
             __DIR__ . '/mails/templates/customized_template.html.twig',
             '',
             $this->name
         ));
+    }
+
+    /**
+     * This hook is used to modify the layout variables. In this cas we add the
+     * customMessage variable required by customized_template.
+     *
+     * @param array $hookParams
+     */
+    public function hookActionBuildLayoutVariables(array $hookParams)
+    {
+        if (!isset($hookParams['mailLayout'])) {
+            return;
+        }
+        /** @var MailLayoutInterface $mailLayout */
+        $mailLayout = $hookParams['mailLayout'];
+        if ($mailLayout->getModuleName() != $this->name) {
+            return;
+        }
+
+        $hookParams['mailLayoutVariables']['customMessage'] = 'My custom message';
     }
 
     /**
