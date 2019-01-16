@@ -33,6 +33,9 @@ use PrestaShop\PrestaShop\Core\MailTemplate\MailTemplateRendererInterface;
 use PrestaShop\PrestaShop\Core\MailTemplate\MailLayoutCatalogInterface;
 use PrestaShop\PrestaShop\Core\MailTemplate\MailLayoutFolderCatalog;
 use PrestaShop\PrestaShop\Core\MailTemplate\MailLayoutVariablesBuilderInterface;
+use PrestaShop\PrestaShop\Core\MailTemplate\MailLayoutCollectionInterface;
+use PrestaShop\PrestaShop\Core\MailTemplate\MailThemeCollectionInterface;
+use PrestaShop\PrestaShop\Core\MailTemplate\MailTheme;
 
 class example_module_mailtheme extends Module
 {
@@ -60,7 +63,7 @@ class example_module_mailtheme extends Module
         $this->description = $this->trans('Example module to add a Mail theme to PrestaShop.', array(), 'Modules.ExampleModuleMailtheme.Admin');
         $this->secure_key = Tools::encrypt($this->name);
 
-        $this->ps_versions_compliancy = array('min' => '1.7.6.0', 'max' => _PS_VERSION_);
+        $this->ps_versions_compliancy = array('min' => '1.7.5.0', 'max' => _PS_VERSION_);
         $this->templateFile = 'module:example_module_mailtheme/views/templates/index.tpl';
         $this->hookList = [
             MailTemplateRendererInterface::GET_MAIL_TEMPLATE_TRANSFORMATIONS,
@@ -108,10 +111,64 @@ class example_module_mailtheme extends Module
         );
     }
 
+    /**
+     * This hook is used to add a custom module theme called example_module_theme
+     *
+     * @param array $hookParams
+     */
     public function hookActionListMailThemes(array $hookParams)
     {
+        if (!isset($hookParams['mailThemes'])) {
+            return;
+        }
+
         //Add the module theme called example_module_theme
-        $hookParams['mailThemes'][] = 'example_module_theme';
+        /** @var MailThemeCollectionInterface $themes */
+        $themes = $hookParams['mailThemes'];
+        $themes->add(new MailTheme($this->name));
+    }
+
+    /**
+     * This hook is used to modify the folder of a theme. In this particular
+     * case we set our example_module_theme theme's folder on the same path
+     * of the classic one. It is for test purposes but it could be a simple
+     * way to "extend" a theme.
+     *
+     * @param array $hookParams
+     */
+    public function hookActionGetMailThemeFolder(array $hookParams)
+    {
+        if (!isset($hookParams['mailTheme']) || $this->name !== $hookParams['mailTheme']) {
+            return;
+        }
+
+        $hookParams['mailThemeFolder'] = preg_replace(
+            sprintf('/%s$/', $this->name),
+            'classic',
+            $hookParams['mailThemeFolder']
+        );
+    }
+
+    /**
+     * This hook is used to add/remove layout to the theme's collection. In this case
+     * we add a layout customized_template linked to this module.
+     *
+     * @param array $hookParams
+     */
+    public function hookActionListMailThemeLayouts(array $hookParams)
+    {
+        if (!isset($hookParams['mailTheme']) || $this->name !== $hookParams['mailTheme']) {
+            return;
+        }
+
+        /** @var MailLayoutCollectionInterface $layouts */
+        $layouts = $hookParams['mailThemeLayouts'];
+        $layouts->add(new \PrestaShop\PrestaShop\Core\MailTemplate\MailLayout(
+            'customized_template',
+            __DIR__ . '/mails/templates/customized_template.html.twig',
+            '',
+            $this->name
+        ));
     }
 
     /**

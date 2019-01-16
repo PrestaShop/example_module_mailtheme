@@ -16,7 +16,7 @@
     "psr-4": {
       "PrestaShop\\Module\\ExampleModuleMailtheme\\": "src/"
     },
-    "classmap": ["ExampleModuleMailtheme.php"],
+    "classmap": ["example_module_mailtheme.php"],
     "exclude-from-classmap": []
   },
   "config": {
