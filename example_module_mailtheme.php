@@ -30,6 +30,7 @@ if (!defined('_CAN_LOAD_FILES_')) {
 require_once __DIR__ . '/vendor/autoload.php';
 
 use PrestaShop\PrestaShop\Core\MailTemplate\MailTemplateRendererInterface;
+use PrestaShop\PrestaShop\Core\MailTemplate\MailTemplateInterface;
 use PrestaShop\PrestaShop\Core\MailTemplate\MailLayoutCatalogInterface;
 use PrestaShop\PrestaShop\Core\MailTemplate\MailLayoutFolderCatalog;
 use PrestaShop\PrestaShop\Core\MailTemplate\MailLayoutVariablesBuilderInterface;
@@ -38,6 +39,8 @@ use PrestaShop\PrestaShop\Core\MailTemplate\MailLayout;
 use PrestaShop\PrestaShop\Core\MailTemplate\MailLayoutInterface;
 use PrestaShop\PrestaShop\Core\MailTemplate\MailThemeCollectionInterface;
 use PrestaShop\PrestaShop\Core\MailTemplate\MailTheme;
+use PrestaShop\PrestaShop\Core\MailTemplate\Transformation\TransformationCollectionInterface;
+use PrestaShop\Module\ExampleModuleMailtheme\MailTemplate\Transformation\CustomMessageColorTransformation;
 
 class example_module_mailtheme extends Module
 {
@@ -68,11 +71,11 @@ class example_module_mailtheme extends Module
         $this->ps_versions_compliancy = array('min' => '1.7.5.0', 'max' => _PS_VERSION_);
         $this->templateFile = 'module:example_module_mailtheme/views/templates/index.tpl';
         $this->hookList = [
-            MailTemplateRendererInterface::GET_MAIL_TEMPLATE_TRANSFORMATIONS,
             MailLayoutCatalogInterface::LIST_MAIL_THEMES_HOOK,
-            MailLayoutCatalogInterface::LIST_MAIL_THEME_LAYOUTS_HOOK,
             MailLayoutFolderCatalog::GET_MAIL_THEME_FOLDER_HOOK,
+            MailLayoutCatalogInterface::LIST_MAIL_THEME_LAYOUTS_HOOK,
             MailLayoutVariablesBuilderInterface::BUILD_LAYOUT_VARIABLES_HOOK,
+            MailTemplateRendererInterface::GET_MAIL_LAYOUT_TRANSFORMATIONS,
         ];
     }
 
@@ -191,6 +194,26 @@ class example_module_mailtheme extends Module
         }
 
         $hookParams['mailLayoutVariables']['customMessage'] = 'My custom message';
+    }
+
+    public function hookActionGetMailLayoutTransformations(array $hookParams)
+    {
+        if (!isset($hookParams['templateType']) ||
+            MailTemplateInterface::HTML_TYPE !== $hookParams['templateType'] ||
+            !isset($hookParams['mailLayout']) ||
+            !isset($hookParams['layoutTransformations'])) {
+            return;
+        }
+
+        /** @var MailLayoutInterface $mailLayout */
+        $mailLayout = $hookParams['mailLayout'];
+        if ($mailLayout->getModuleName() != $this->name) {
+            return;
+        }
+
+        /** @var TransformationCollectionInterface $transformations */
+        $transformations = $hookParams['layoutTransformations'];
+        $transformations->add(new CustomMessageColorTransformation('#FF0000'));
     }
 
     /**
