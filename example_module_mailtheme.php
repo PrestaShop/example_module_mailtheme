@@ -124,6 +124,7 @@ class example_module_mailtheme extends Module
         /** @var ThemeCollectionInterface $themes */
         $themes = $hookParams['mailThemes'];
         $this->addLayoutToCollection($themes);
+        $this->extendOrderConfLayout($themes);
     }
 
     /**
@@ -145,6 +146,41 @@ class example_module_mailtheme extends Module
                 __DIR__ . '/mails/layouts/customized_' . $theme->getName() . '_layout.html.twig',
                 '',
                 $this->name
+            ));
+        }
+    }
+
+    /**
+     * @param ThemeCollectionInterface $themes
+     */
+    private function extendOrderConfLayout(ThemeCollectionInterface $themes)
+    {
+        /** @var ThemeInterface $theme */
+        foreach ($themes as $theme) {
+            if ('modern' !== $theme->getName()) {
+                continue;
+            }
+
+            $orderConfLayout = null;
+            /** @var LayoutInterface $layout */
+            foreach ($theme->getLayouts() as $layout) {
+                if ('order_conf' === $layout->getName() && empty($layout->getModuleName())) {
+                    $orderConfLayout = $layout;
+                    break;
+                }
+            }
+
+            //Replace the layout in the theme
+            if (null === $orderConfLayout) {
+                return;
+            }
+
+            //The layout collection extends from ArrayCollection so it has more feature than it seems..
+            $orderIndex = $theme->getLayouts()->indexOf($orderConfLayout);
+            $theme->getLayouts()->offsetSet($orderIndex, new Layout(
+                $orderConfLayout->getName(),
+                __DIR__ . '/mails/layouts/extended_modern_order_conf_layout.html.twig',
+                ''
             ));
         }
     }

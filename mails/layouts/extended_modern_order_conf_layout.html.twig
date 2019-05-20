@@ -1,0 +1,15 @@
+{% extends '@MailThemes/modern/core/order_conf.html.twig' %}
+
+{% block content %}
+  {{ parent() }}
+  <table width="100%">
+    <tr>
+      <td align="center" class="titleblock">
+        <font size="2" face="{{ languageDefaultFont }}Open-sans, sans-serif" color="#555454">
+          {{ 'Thank you for purchasing this product on our store. Feel free to leave us a review if you are happy of this product:'|trans({}, 'EmailsBody', locale)|raw }}
+          <a href="{shop_url}/post_review">{{ 'Post a review'|trans({}, 'EmailsBody', locale)|raw }}</a>
+        </font>
+      </td>
+    </tr>
+  </table>
+{% endblock %}
