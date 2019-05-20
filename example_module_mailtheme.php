@@ -23,11 +23,16 @@
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-
 if (!defined('_CAN_LOAD_FILES_')) {
     exit;
 }
 
+use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
+use PrestaShop\PrestaShop\Adapter\LegacyContext;
+use PrestaShop\PrestaShop\Core\CommandBus\CommandBusInterface;
+use PrestaShop\PrestaShop\Core\Domain\MailTemplate\Command\GenerateThemeMailTemplatesCommand;
+use PrestaShop\PrestaShop\Core\Exception\CoreException;
+use PrestaShop\PrestaShop\Core\Language\LanguageInterface;
 use PrestaShop\PrestaShop\Core\MailTemplate\Layout\Layout;
 use PrestaShop\PrestaShop\Core\MailTemplate\Layout\LayoutInterface;
 use PrestaShop\PrestaShop\Core\MailTemplate\Layout\LayoutVariablesBuilderInterface;
@@ -78,6 +83,8 @@ class example_module_mailtheme extends Module
     {
         return parent::install()
             && $this->registerHooks()
+            && $this->installTab()
+            && $this->generateTheme()
         ;
     }
 
@@ -85,6 +92,7 @@ class example_module_mailtheme extends Module
     {
         return parent::uninstall()
             && $this->unregisterHooks()
+            && $this->uninstallTab()
         ;
     }
 
@@ -92,6 +100,8 @@ class example_module_mailtheme extends Module
     {
         return parent::enable($force_all)
             && $this->registerHooks()
+            && $this->installTab()
+            && $this->generateTheme()
         ;
     }
 
@@ -99,7 +109,75 @@ class example_module_mailtheme extends Module
     {
         return parent::disable($force_all)
             && $this->unregisterHooks()
+            && $this->uninstallTab()
         ;
+    }
+
+    private function generateTheme()
+    {
+        $sfContainer = SymfonyContainer::getInstance();
+        if (null === $sfContainer) {
+            return;
+        }
+
+        /** @var CommandBusInterface $commandBus */
+        $commandBus = $sfContainer->get('prestashop.core.command_bus');
+        if (null === $commandBus) {
+            return;
+        }
+
+        /** @var LegacyContext $legacyContext */
+        $legacyContext = $sfContainer->get('prestashop.adapter.legacy.context');
+        $languages = $legacyContext->getLanguages();
+
+        $mailTheme = Configuration::get('PS_MAIL_THEME');
+        /** @var array $language */
+        foreach ($languages as $language) {
+            /** @var GenerateThemeMailTemplatesCommand $generateCommand */
+            $generateCommand = new GenerateThemeMailTemplatesCommand(
+                $mailTheme,
+                $language['locale'],
+                false
+            );
+            try {
+                $commandBus->handle($generateCommand);
+            } catch (CoreException $e) {
+            }
+        }
+
+        return true;
+    }
+
+    private function installTab()
+    {
+        $tabId = (int) Tab::getIdFromClassName('ExampleModuleMailtheme');
+        if (!$tabId) {
+            $tabId = null;
+        }
+
+        $tab = new Tab($tabId);
+        $tab->active = 1;
+        $tab->class_name = 'ExampleModuleMailtheme';
+        $tab->name = array();
+        foreach (Language::getLanguages(true) as $lang) {
+            $tab->name[$lang['id_lang']] = 'Example Module Email Theme';
+        }
+        $tab->id_parent = (int) Tab::getIdFromClassName('AdminMailThemeParent');
+        $tab->module = $this->name;
+
+        return $tab->save();
+    }
+
+    private function uninstallTab()
+    {
+        $tabId = (int) Tab::getIdFromClassName('ExampleModuleMailtheme');
+        if (!$tabId) {
+            return true;
+        }
+
+        $tab = new Tab($tabId);
+
+        return $tab->delete();
     }
 
     public function getContent()
