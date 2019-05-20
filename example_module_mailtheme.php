@@ -32,7 +32,6 @@ use PrestaShop\PrestaShop\Adapter\LegacyContext;
 use PrestaShop\PrestaShop\Core\CommandBus\CommandBusInterface;
 use PrestaShop\PrestaShop\Core\Domain\MailTemplate\Command\GenerateThemeMailTemplatesCommand;
 use PrestaShop\PrestaShop\Core\Exception\CoreException;
-use PrestaShop\PrestaShop\Core\Language\LanguageInterface;
 use PrestaShop\PrestaShop\Core\MailTemplate\Layout\Layout;
 use PrestaShop\PrestaShop\Core\MailTemplate\Layout\LayoutInterface;
 use PrestaShop\PrestaShop\Core\MailTemplate\Layout\LayoutVariablesBuilderInterface;
@@ -113,22 +112,35 @@ class example_module_mailtheme extends Module
         ;
     }
 
+    /**
+     * Generate modern theme via the command bus (always return true to avoid blocking the installation)
+     *
+     * @return bool
+     */
     private function generateTheme()
     {
         $sfContainer = SymfonyContainer::getInstance();
         if (null === $sfContainer) {
-            return;
+            return true;
         }
 
         /** @var CommandBusInterface $commandBus */
         $commandBus = $sfContainer->get('prestashop.core.command_bus');
         if (null === $commandBus) {
-            return;
+            return true;
         }
 
         /** @var LegacyContext $legacyContext */
         $legacyContext = $sfContainer->get('prestashop.adapter.legacy.context');
         $languages = $legacyContext->getLanguages();
+
+        //IMPORTANT NOTICES
+        //Clear the cache for Hook::getHookModuleExecList or the hooks won't be correctly executed
+        Cache::clear();
+
+        //Since the module was not active when the install started the autoload was not loaded automatically
+        //so we load it manually here
+        require_once __DIR__ . '/vendor/autoload.php';
 
         $mailTheme = Configuration::get('PS_MAIL_THEME');
         /** @var array $language */
