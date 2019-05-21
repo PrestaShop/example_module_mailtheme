@@ -32,6 +32,7 @@ use PrestaShop\PrestaShop\Adapter\LegacyContext;
 use PrestaShop\PrestaShop\Core\CommandBus\CommandBusInterface;
 use PrestaShop\PrestaShop\Core\Domain\MailTemplate\Command\GenerateThemeMailTemplatesCommand;
 use PrestaShop\PrestaShop\Core\Exception\CoreException;
+use PrestaShop\PrestaShop\Core\MailTemplate\FolderThemeScanner;
 use PrestaShop\PrestaShop\Core\MailTemplate\Layout\Layout;
 use PrestaShop\PrestaShop\Core\MailTemplate\Layout\LayoutInterface;
 use PrestaShop\PrestaShop\Core\MailTemplate\Layout\LayoutVariablesBuilderInterface;
@@ -215,6 +216,7 @@ class example_module_mailtheme extends Module
         $themes = $hookParams['mailThemes'];
         $this->addLayoutToCollection($themes);
         $this->extendOrderConfLayout($themes);
+        $this->addDarkTheme($themes);
     }
 
     /**
@@ -273,6 +275,20 @@ class example_module_mailtheme extends Module
                 ''
             ));
         }
+    }
+
+    /**
+     * Adds a whole theme to the list, scan it using FolderThemeScanner class
+     *
+     * @param ThemeCollectionInterface $themes
+     * @throws \PrestaShop\PrestaShop\Core\Exception\FileNotFoundException
+     * @throws \PrestaShop\PrestaShop\Core\Exception\TypeException
+     */
+    private function addDarkTheme(ThemeCollectionInterface $themes)
+    {
+        $scanner = new FolderThemeScanner();
+        $darkTheme = $scanner->scan(__DIR__.'/mails/themes/dark_modern');
+        $themes->add($darkTheme);
     }
 
     /**
