@@ -288,7 +288,9 @@ class example_module_mailtheme extends Module
     {
         $scanner = new FolderThemeScanner();
         $darkTheme = $scanner->scan(__DIR__.'/mails/themes/dark_modern');
-        $themes->add($darkTheme);
+        if (null !== $darkTheme && $darkTheme->getLayouts()->count() > 0) {
+            $themes->add($darkTheme);
+        }
     }
 
     /**
