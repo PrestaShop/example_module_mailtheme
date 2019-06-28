@@ -26,14 +26,16 @@
 
 namespace PrestaShop\Module\ExampleModuleMailtheme\Form;
 
+use PrestaShop\Module\ExampleModuleMailtheme\DarkThemeSettings;
 use PrestaShop\PrestaShop\Core\ConstraintValidator\Constraints\DefaultLanguage;
 use PrestaShopBundle\Form\Admin\Type\TranslatableType;
 use PrestaShopBundle\Form\Admin\Type\TranslatorAwareType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\Regex;
 
-class DarkThemeType extends TranslatorAwareType
+class DarkThemeSettingsType extends TranslatorAwareType
 {
     /**
      * {@inheritdoc}
@@ -62,11 +64,11 @@ class DarkThemeType extends TranslatorAwareType
                     ],
                     'constraints' => [
                         new Length([
-                            'max' => 512,
+                            'max' => DarkThemeSettings::CUSTOM_MESSAGE_MAX_SIZE,
                             'maxMessage' => $this->trans(
                                 'This field cannot be longer than %limit% characters',
                                 'Admin.Notifications.Error',
-                                ['%limit%' => 255]
+                                ['%limit%' => DarkThemeSettings::CUSTOM_MESSAGE_MAX_SIZE]
                             ),
                         ]),
                     ],
@@ -76,20 +78,56 @@ class DarkThemeType extends TranslatorAwareType
                 'attr' => [
                     'class' => 'color-picker',
                 ],
+                'constraints' => [
+                    new Regex([
+                        'pattern' => '/#[0-9A-F]{6}/',
+                        'message' => $this->trans(
+                            'The color must use the hexadecimal syntax (ex: #ffffff)',
+                            'Modules.ExampleModuleMailtheme'
+                        ),
+                    ]),
+                ],
             ])
             ->add('secondary_background_color', TextType::class, [
                 'attr' => [
                     'class' => 'color-picker',
+                ],
+                'constraints' => [
+                    new Regex([
+                        'pattern' => '/#[0-9A-F]{6}/',
+                        'message' => $this->trans(
+                            'The color must use the hexadecimal syntax (ex: #ffffff)',
+                            'Modules.ExampleModuleMailtheme'
+                        ),
+                    ]),
                 ],
             ])
             ->add('primary_text_color', TextType::class, [
                 'attr' => [
                     'class' => 'color-picker',
                 ],
+                'constraints' => [
+                    new Regex([
+                        'pattern' => '/#[0-9A-F]{6}/',
+                        'message' => $this->trans(
+                            'The color must use the hexadecimal syntax (ex: #ffffff)',
+                            'Modules.ExampleModuleMailtheme'
+                        ),
+                    ]),
+                ],
             ])
             ->add('secondary_text_color', TextType::class, [
                 'attr' => [
                     'class' => 'color-picker',
+                ],
+                'constraints' => [
+                    new Regex([
+                        'pattern' => '/#[0-9A-F]{6}/',
+                        'message' => $this->trans(
+                            'The color must use the hexadecimal syntax (ex: #ffffff)',
+                            'Modules.ExampleModuleMailtheme'
+                        ),
+                    ]),
                 ],
             ])
         ;

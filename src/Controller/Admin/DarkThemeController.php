@@ -27,23 +27,25 @@
 namespace PrestaShop\Module\ExampleModuleMailtheme\Controller\Admin;
 
 use PrestaShop\Module\ExampleModuleMailtheme\DarkThemeSettings;
-use PrestaShop\Module\ExampleModuleMailtheme\Form\DarkThemeType;
+use PrestaShop\Module\ExampleModuleMailtheme\Form\DarkThemeSettingsType;
 use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class DarkThemeController extends FrameworkBundleAdminController
 {
     /**
      * @param Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
     public function indexAction(Request $request)
     {
         /** @var DarkThemeSettings $darkThemeSettings */
         $darkThemeSettings = $this->get('prestashop.module.example_module_mailtheme.dark_theme_settings');
 
-        $form = $this->createForm(DarkThemeType::class, $darkThemeSettings->getSettings());
+        $form = $this->createForm(DarkThemeSettingsType::class, $darkThemeSettings->getSettings());
 
         return $this->render('@Modules/example_module_mailtheme/views/templates/admin/index.html.twig', [
             'enableSidebar' => true,
@@ -55,30 +57,33 @@ class DarkThemeController extends FrameworkBundleAdminController
     /**
      * @param Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @return Response
      */
     public function saveSettingsAction(Request $request)
     {
         /** @var DarkThemeSettings $darkThemeSettings */
         $darkThemeSettings = $this->get('prestashop.module.example_module_mailtheme.dark_theme_settings');
 
-        $form = $this->createForm(DarkThemeType::class, $darkThemeSettings->getSettings());
+        $form = $this->createForm(DarkThemeSettingsType::class, $darkThemeSettings->getSettings());
         $form->handleRequest($request);
         if ($form->isValid()) {
             $darkThemeSettings->saveSettings($form->getData());
-
             $this->addFlash('success', $this->trans('Your settings for Dark Theme are saved.', 'Modules.ExampleModuleMailtheme'));
-        } else {
-            $this->addFlash('error', $this->trans('Your settings for Dark Theme cannot be saved.', 'Modules.ExampleModuleMailtheme'));
+
+            return $this->redirectToRoute('admin_example_module_mailtheme');
         }
 
-        return $this->redirectToRoute('admin_example_module_mailtheme');
+        return $this->render('@Modules/example_module_mailtheme/views/templates/admin/index.html.twig', [
+            'enableSidebar' => true,
+            'darkThemeForm' => $form->createView(),
+            'help_link' => $this->generateSidebarLink($request->attributes->get('_legacy_controller')),
+        ]);
     }
 
     /**
      * @param Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @return RedirectResponse
      */
     public function resetDefaultSettingsAction(Request $request)
     {
