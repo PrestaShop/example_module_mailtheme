@@ -248,7 +248,7 @@
                           <table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
                             <tbody>
                               <tr>
-                                <td style="background-color:#232323;border:1px solid #DFDFDF;vertical-align:top;padding-top:10px;padding-bottom:10px;">
+                                <td style="background-color:{{ primary_background_color }};border:1px solid #DFDFDF;vertical-align:top;padding-top:10px;padding-bottom:10px;">
                                   <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="" width="100%">
                                     <tr>
                                       <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
@@ -508,7 +508,7 @@
                           <table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
                             <tbody>
                               <tr>
-                                <td style="background-color:#232323;border:1px solid #DFDFDF;vertical-align:top;padding-top:10px;padding-bottom:10px;">
+                                <td style="background-color:{{ primary_background_color }};border:1px solid #DFDFDF;vertical-align:top;padding-top:10px;padding-bottom:10px;">
                                   <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="" width="100%">
                                     <tr>
                                       <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
@@ -591,7 +591,7 @@
                                                 <img src="{{ mailThemesUrl }}/modern/assets/baseline-location_on-24px.png" style="width:15px;margin-right:10px">
                                                 {{ 'Delivery address'|trans({}, 'Emails.Body', locale)|raw }}
                                               </p>
-                                              <p style="border: 1px solid #DFDFDF;background-color: #232323;padding:20px;font-size:14px">
+                                              <p style="border: 1px solid #DFDFDF;background-color: {{ primary_background_color }};padding:20px;font-size:14px">
                                                 {% if templateType == 'html' %}
 {delivery_block_html}
 {% endif %}
@@ -614,7 +614,7 @@
                                                 <img src="{{ mailThemesUrl }}/modern/assets/baseline-credit_card-24px.png" style="width:25px;margin-right:10px">
                                                 {{ 'Billing address'|trans({}, 'Emails.Body', locale)|raw }}
                                               </p>
-                                              <p style="border: 1px solid #DFDFDF;background-color: #232323;padding:20px;font-size:14px">
+                                              <p style="border: 1px solid #DFDFDF;background-color: {{ primary_background_color }};padding:20px;font-size:14px">
                                                 {% if templateType == 'html' %}
 {invoice_block_html}
 {% endif %}

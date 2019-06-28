@@ -312,16 +312,20 @@ class example_module_mailtheme extends Module
      * @param array $hookParams
      */
     public function hookActionBuildMailLayoutVariables(array $hookParams)
-    {
+    {dump($hookParams);
         if (!isset($hookParams['mailLayout'])) {
             return;
         }
+
         /** @var LayoutInterface $mailLayout */
-        $mailLayout = $hookParams['mailLayout'];
-        if ($mailLayout->getModuleName() != $this->name) {
+        $mailLayout = $hookParams['mailLayout'];dump(strpos($mailLayout->getHtmlPath(), 'dark_modern'));
+        if (false === strpos($mailLayout->getHtmlPath(), 'dark_modern')) {
             return;
         }
 
+        /** @var DarkThemeSettings $darkThemeSettings */
+        $darkThemeSettings = $this->get('prestashop.module.example_module_mailtheme.dark_theme_settings');
+        $hookParams['mailLayoutVariables'] = array_merge($hookParams['mailLayoutVariables'], $darkThemeSettings->getSettings());dump($hookParams['mailLayoutVariables']);
         $hookParams['mailLayoutVariables']['customMessage'] = 'My custom message';
     }
 
