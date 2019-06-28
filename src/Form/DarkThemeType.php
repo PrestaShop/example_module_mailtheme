@@ -26,11 +26,14 @@
 
 namespace PrestaShop\Module\ExampleModuleMailtheme\Form;
 
-use Symfony\Component\Form\AbstractType;
+use PrestaShop\PrestaShop\Core\ConstraintValidator\Constraints\DefaultLanguage;
+use PrestaShopBundle\Form\Admin\Type\TranslatableType;
+use PrestaShopBundle\Form\Admin\Type\TranslatorAwareType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Validator\Constraints\Length;
 
-class DarkThemeType extends AbstractType
+class DarkThemeType extends TranslatorAwareType
 {
     /**
      * {@inheritdoc}
@@ -38,6 +41,37 @@ class DarkThemeType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('custom_message', TranslatableType::class, [
+                'constraints' => [
+                    new DefaultLanguage([
+                        'message' => $this->trans(
+                            'The field %field_name% is required at least in your default language.',
+                            'Admin.Notifications.Error',
+                            [
+                                '%field_name%' => sprintf(
+                                    '"%s"',
+                                    $this->trans('Custom message', 'Modules.ExampleModuleMailtheme')
+                                ),
+                            ]
+                        ),
+                    ]),
+                ],
+                'options' => [
+                    'attr' => [
+                        'class' => 'js-copier-source-title',
+                    ],
+                    'constraints' => [
+                        new Length([
+                            'max' => 512,
+                            'maxMessage' => $this->trans(
+                                'This field cannot be longer than %limit% characters',
+                                'Admin.Notifications.Error',
+                                ['%limit%' => 255]
+                            ),
+                        ]),
+                    ],
+                ],
+            ])
             ->add('primary_background_color', TextType::class, [
                 'attr' => [
                     'class' => 'color-picker',

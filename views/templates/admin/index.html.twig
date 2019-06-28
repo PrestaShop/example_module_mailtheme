@@ -14,6 +14,10 @@
           <div class="card-block row">
             <div class="card-text">
 
+              {{ ps.form_group_row(darkThemeForm.custom_message, darkThemeForm.custom_message.vars, {
+                'label': 'Custom message'|trans({}, 'Modules.ExampleModuleMailtheme'),
+              }) }}
+
               {{ ps.form_group_row(darkThemeForm.primary_background_color, darkThemeForm.primary_background_color.vars, {
                 'label': 'Primary background color'|trans({}, 'Modules.ExampleModuleMailtheme'),
               }) }}

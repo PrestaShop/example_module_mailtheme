@@ -33,17 +33,26 @@ use PrestaShop\PrestaShop\Core\ConfigurationInterface;
  */
 class DarkThemeSettings
 {
-    const SETTINGS_KEY = 'EMXAMPLE_MODULE_MAILTHEME_DARK_THEME_SETTINGS';
+    const SETTINGS_KEY = 'EXAMPLE_MODULE_MAILTHEME_DARK_THEME_SETTINGS';
+    const DEFAULT_CUSTOM_MESSAGE = 'My custom message';
 
     /** @var ConfigurationInterface */
     private $configuration;
 
     /**
+     * @param array $languages
+     */
+    private $languages;
+
+    /**
      * @param ConfigurationInterface $configuration
      */
-    public function __construct(ConfigurationInterface $configuration)
-    {
+    public function __construct(
+        ConfigurationInterface $configuration,
+        array $languages
+    ) {
         $this->configuration = $configuration;
+        $this->languages = $languages;
     }
 
     /**
@@ -51,7 +60,13 @@ class DarkThemeSettings
      */
     public function getDefaultSettings()
     {
+        $customMessage = [];
+        foreach ($this->languages as $language) {
+            $customMessage[$language['id_lang']] = self::DEFAULT_CUSTOM_MESSAGE;
+        }
+
         return [
+            'custom_message' => $customMessage,
             'primary_background_color' => '#222222',
             'secondary_background_color' => '#dddddd',
             'primary_text_color' => '#ffffff',
@@ -77,6 +92,23 @@ class DarkThemeSettings
         $settings =  json_decode($configurationSettings, true);
 
         return empty($settings) ? $this->getDefaultSettings() : $settings;
+    }
+
+    /**
+     * @param string $locale
+     *
+     * @return string
+     */
+    public function getCustomMessageByLocale($locale)
+    {
+        $settings = $this->getSettings();
+        foreach ($this->languages as $language) {
+            if ($locale === $language['locale'] && !empty($settings['custom_message'][$language['id_lang']])) {
+                return $settings['custom_message'][$language['id_lang']];
+            }
+        }
+
+        return self::DEFAULT_CUSTOM_MESSAGE;
     }
 
     /**

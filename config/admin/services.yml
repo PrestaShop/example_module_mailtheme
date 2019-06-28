@@ -6,3 +6,15 @@ services:
     class: PrestaShop\Module\ExampleModuleMailtheme\DarkThemeSettings
     arguments:
       - '@prestashop.adapter.legacy.configuration'
+      - "@=service('prestashop.adapter.legacy.context').getLanguages()"
+
+  # We need to define this form type manually (no form.type.translatable.aware parent) and check the translator
+  # existence because in legacy context the service is not available
+  form.type.dark_theme_settings:
+    class: PrestaShop\Module\ExampleModuleMailtheme\Form\DarkThemeType
+    public: true
+    arguments:
+      - "@=container.has('translator') ? service('translator') : null"
+      - "@=service('prestashop.adapter.legacy.context').getLanguages()"
+    tags:
+      - { name: form.type }
