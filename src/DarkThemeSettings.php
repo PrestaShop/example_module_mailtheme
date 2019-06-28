@@ -90,7 +90,7 @@ class DarkThemeSettings
             return $this->getDefaultSettings();
         }
 
-        $settings =  json_decode($configurationSettings, true);
+        $settings = json_decode($configurationSettings, true);
 
         return empty($settings) ? $this->getDefaultSettings() : $settings;
     }

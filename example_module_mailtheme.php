@@ -293,13 +293,14 @@ class example_module_mailtheme extends Module
      * Adds a whole theme to the list, scan it using FolderThemeScanner class
      *
      * @param ThemeCollectionInterface $themes
+     *
      * @throws \PrestaShop\PrestaShop\Core\Exception\FileNotFoundException
      * @throws \PrestaShop\PrestaShop\Core\Exception\TypeException
      */
     private function addDarkTheme(ThemeCollectionInterface $themes)
     {
         $scanner = new FolderThemeScanner();
-        $darkTheme = $scanner->scan(__DIR__.'/mails/themes/dark_modern');
+        $darkTheme = $scanner->scan(__DIR__ . '/mails/themes/dark_modern');
         if (null !== $darkTheme && $darkTheme->getLayouts()->count() > 0) {
             $themes->add($darkTheme);
         }
