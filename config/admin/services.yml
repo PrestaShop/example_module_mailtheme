@@ -1,0 +1,8 @@
+services:
+  _defaults:
+    public: true
+
+  prestashop.module.example_module_mailtheme.dark_theme_settings:
+    class: PrestaShop\Module\ExampleModuleMailtheme\DarkThemeSettings
+    arguments:
+      - '@prestashop.adapter.legacy.configuration'

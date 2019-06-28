@@ -42,6 +42,7 @@ use PrestaShop\PrestaShop\Core\MailTemplate\ThemeInterface;
 use PrestaShop\PrestaShop\Core\MailTemplate\ThemeCatalogInterface;
 use PrestaShop\PrestaShop\Core\MailTemplate\ThemeCollectionInterface;
 use PrestaShop\PrestaShop\Core\MailTemplate\Transformation\TransformationCollectionInterface;
+use PrestaShop\Module\ExampleModuleMailtheme\DarkThemeSettings;
 use PrestaShop\Module\ExampleModuleMailtheme\MailTemplate\Transformation\CustomMessageColorTransformation;
 
 class example_module_mailtheme extends Module
@@ -84,6 +85,7 @@ class example_module_mailtheme extends Module
         return parent::install()
             && $this->registerHooks()
             && $this->installTab()
+            && $this->installSettings()
             && $this->generateTheme()
         ;
     }
@@ -143,14 +145,14 @@ class example_module_mailtheme extends Module
         //so we load it manually here
         require_once __DIR__ . '/vendor/autoload.php';
 
-        $mailTheme = Configuration::get('PS_MAIL_THEME');
+        Configuration::set('PS_MAIL_THEME', 'dark_modern');
         /** @var array $language */
         foreach ($languages as $language) {
             /** @var GenerateThemeMailTemplatesCommand $generateCommand */
             $generateCommand = new GenerateThemeMailTemplatesCommand(
-                $mailTheme,
+                'dark_modern',
                 $language['locale'],
-                false
+                true
             );
             try {
                 $commandBus->handle($generateCommand);
@@ -193,6 +195,15 @@ class example_module_mailtheme extends Module
         return $tab->delete();
     }
 
+    private function installSettings()
+    {
+        /** @var DarkThemeSettings $darkThemeSettings */
+        $darkThemeSettings = $this->get('prestashop.module.example_module_mailtheme.dark_theme_settings');
+        $darkThemeSettings->initSettings();
+
+        return true;
+    }
+
     public function getContent()
     {
         //This controller actually does not exist, it is used in the tab
@@ -214,9 +225,10 @@ class example_module_mailtheme extends Module
         //Add the module theme called example_module_theme
         /** @var ThemeCollectionInterface $themes */
         $themes = $hookParams['mailThemes'];
+
+        $this->addDarkTheme($themes);
         $this->addLayoutToCollection($themes);
         $this->extendOrderConfLayout($themes);
-        $this->addDarkTheme($themes);
     }
 
     /**
@@ -229,7 +241,7 @@ class example_module_mailtheme extends Module
     {
         /** @var ThemeInterface $theme */
         foreach ($themes as $theme) {
-            if (!in_array($theme->getName(), ['classic', 'modern'])) {
+            if (!in_array($theme->getName(), ['classic', 'modern', 'dark_modern'])) {
                 continue;
             }
 
@@ -249,11 +261,11 @@ class example_module_mailtheme extends Module
     {
         /** @var ThemeInterface $theme */
         foreach ($themes as $theme) {
-            if ('modern' !== $theme->getName()) {
+            if (!in_array($theme->getName(), ['modern', 'dark_modern'])) {
                 continue;
             }
 
-            $orderConfLayout = null;
+            $orderConfLayout = $theme->getLayouts()->getLayout('order_conf', '');
             /** @var LayoutInterface $layout */
             foreach ($theme->getLayouts() as $layout) {
                 if ('order_conf' === $layout->getName() && empty($layout->getModuleName())) {
@@ -271,7 +283,7 @@ class example_module_mailtheme extends Module
             $orderIndex = $theme->getLayouts()->indexOf($orderConfLayout);
             $theme->getLayouts()->offsetSet($orderIndex, new Layout(
                 $orderConfLayout->getName(),
-                __DIR__ . '/mails/layouts/extended_modern_order_conf_layout.html.twig',
+                __DIR__ . '/mails/layouts/extended_' . $theme->getName() . '_order_conf_layout.html.twig',
                 ''
             ));
         }
