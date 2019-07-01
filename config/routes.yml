@@ -4,7 +4,9 @@ admin_example_module_mailtheme:
   defaults:
     _controller: 'PrestaShop\Module\ExampleModuleMailtheme\Controller\Admin\DarkThemeController::indexAction'
     _legacy_controller: ExampleModuleMailtheme
-    _legacy_link: ExampleModuleMailtheme:darkTheme
+    _legacy_link:
+      - ExampleModuleMailtheme
+      - ExampleModuleMailtheme:darkTheme
 
 admin_example_module_mailtheme_save_settings:
   path: /example/module_mailtheme
@@ -21,3 +23,11 @@ admin_example_module_mailtheme_reset_default_settings:
     _controller: 'PrestaShop\Module\ExampleModuleMailtheme\Controller\Admin\DarkThemeController::resetDefaultSettingsAction'
     _legacy_controller: ExampleModuleMailtheme
     _legacy_link: ExampleModuleMailtheme:resetDarkThemeDefaultSettings
+
+admin_example_module_mailtheme_generate:
+  path: /example/module_mailtheme/generate
+  methods: [GET]
+  defaults:
+    _controller: 'PrestaShop\Module\ExampleModuleMailtheme\Controller\Admin\DarkThemeController::generateAction'
+    _legacy_controller: ExampleModuleMailtheme
+    _legacy_link: ExampleModuleMailtheme:generateDarkTheme

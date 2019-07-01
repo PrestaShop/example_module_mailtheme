@@ -27,11 +27,6 @@ if (!defined('_CAN_LOAD_FILES_')) {
     exit;
 }
 
-use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
-use PrestaShop\PrestaShop\Adapter\LegacyContext;
-use PrestaShop\PrestaShop\Core\CommandBus\CommandBusInterface;
-use PrestaShop\PrestaShop\Core\Domain\MailTemplate\Command\GenerateThemeMailTemplatesCommand;
-use PrestaShop\PrestaShop\Core\Exception\CoreException;
 use PrestaShop\PrestaShop\Core\MailTemplate\FolderThemeScanner;
 use PrestaShop\PrestaShop\Core\MailTemplate\Layout\Layout;
 use PrestaShop\PrestaShop\Core\MailTemplate\Layout\LayoutInterface;
@@ -68,7 +63,7 @@ class example_module_mailtheme extends Module
         parent::__construct();
 
         $this->displayName = $this->trans('Example Module Email Theme', array(), 'Modules.ExampleModuleMailtheme.Admin');
-        $this->description = $this->trans('Example module to deal with a Email theme in PrestaShop.', array(), 'Modules.ExampleModuleMailtheme.Admin');
+        $this->description = $this->trans('Example module to deal with an Email theme in PrestaShop.', array(), 'Modules.ExampleModuleMailtheme.Admin');
         $this->secure_key = Tools::encrypt($this->name);
 
         $this->ps_versions_compliancy = array('min' => '1.7.5.0', 'max' => _PS_VERSION_);
@@ -85,8 +80,6 @@ class example_module_mailtheme extends Module
         return parent::install()
             && $this->registerHooks()
             && $this->installTab()
-            && $this->installSettings()
-            && $this->generateTheme()
         ;
     }
 
@@ -103,7 +96,6 @@ class example_module_mailtheme extends Module
         return parent::enable($force_all)
             && $this->registerHooks()
             && $this->installTab()
-            && $this->generateTheme()
         ;
     }
 
@@ -113,54 +105,6 @@ class example_module_mailtheme extends Module
             && $this->unregisterHooks()
             && $this->uninstallTab()
         ;
-    }
-
-    /**
-     * Generate modern theme via the command bus (always return true to avoid blocking the installation)
-     *
-     * @return bool
-     */
-    private function generateTheme()
-    {
-        $sfContainer = SymfonyContainer::getInstance();
-        if (null === $sfContainer) {
-            return true;
-        }
-
-        /** @var CommandBusInterface $commandBus */
-        $commandBus = $sfContainer->get('prestashop.core.command_bus');
-        if (null === $commandBus) {
-            return true;
-        }
-
-        /** @var LegacyContext $legacyContext */
-        $legacyContext = $sfContainer->get('prestashop.adapter.legacy.context');
-        $languages = $legacyContext->getLanguages();
-
-        //IMPORTANT NOTICES
-        //Clear the cache for Hook::getHookModuleExecList or the hooks won't be correctly executed
-        Cache::clear();
-
-        //Since the module was not active when the install started the autoload was not loaded automatically
-        //so we load it manually here
-        require_once __DIR__ . '/vendor/autoload.php';
-
-        Configuration::set('PS_MAIL_THEME', 'dark_modern');
-        /** @var array $language */
-        foreach ($languages as $language) {
-            /** @var GenerateThemeMailTemplatesCommand $generateCommand */
-            $generateCommand = new GenerateThemeMailTemplatesCommand(
-                'dark_modern',
-                $language['locale'],
-                true
-            );
-            try {
-                $commandBus->handle($generateCommand);
-            } catch (CoreException $e) {
-            }
-        }
-
-        return true;
     }
 
     private function installTab()
@@ -193,15 +137,6 @@ class example_module_mailtheme extends Module
         $tab = new Tab($tabId);
 
         return $tab->delete();
-    }
-
-    private function installSettings()
-    {
-        /** @var DarkThemeSettings $darkThemeSettings */
-        $darkThemeSettings = $this->get('prestashop.module.example_module_mailtheme.dark_theme_settings');
-        $darkThemeSettings->initSettings();
-
-        return true;
     }
 
     public function getContent()

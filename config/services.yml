@@ -13,8 +13,6 @@ services:
   form.type.dark_theme_settings:
     class: PrestaShop\Module\ExampleModuleMailtheme\Form\DarkThemeSettingsType
     public: true
-    arguments:
-      - "@=container.has('translator') ? service('translator') : null"
-      - "@=service('prestashop.adapter.legacy.context').getLanguages()"
+    parent: 'form.type.translatable.aware'
     tags:
       - { name: form.type }

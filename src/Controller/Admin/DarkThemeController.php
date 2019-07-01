@@ -28,6 +28,11 @@ namespace PrestaShop\Module\ExampleModuleMailtheme\Controller\Admin;
 
 use PrestaShop\Module\ExampleModuleMailtheme\DarkThemeSettings;
 use PrestaShop\Module\ExampleModuleMailtheme\Form\DarkThemeSettingsType;
+use PrestaShop\PrestaShop\Adapter\LegacyContext;
+use PrestaShop\PrestaShop\Core\CommandBus\CommandBusInterface;
+use PrestaShop\PrestaShop\Core\ConfigurationInterface;
+use PrestaShop\PrestaShop\Core\Domain\MailTemplate\Command\GenerateThemeMailTemplatesCommand;
+use PrestaShop\PrestaShop\Core\Exception\CoreException;
 use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -92,6 +97,46 @@ class DarkThemeController extends FrameworkBundleAdminController
         $darkThemeSettings->initSettings();
 
         $this->addFlash('success', $this->trans('The default settings for Dark Theme are reset.', 'Modules.ExampleModuleMailtheme'));
+
+        return $this->redirectToRoute('admin_example_module_mailtheme');
+    }
+
+    /**
+     * @return RedirectResponse
+     */
+    public function generateAction()
+    {
+        /** @var ConfigurationInterface $configuration */
+        $configuration = $this->get('prestashop.adapter.legacy.configuration');
+        $configuration->set('PS_MAIL_THEME', 'dark_modern');
+
+        /** @var LegacyContext $legacyContext */
+        $legacyContext = $this->get('prestashop.adapter.legacy.context');
+        $languages = $legacyContext->getLanguages();
+
+        /** @var CommandBusInterface $commandBus */
+        $commandBus = $this->get('prestashop.core.command_bus');
+
+        try {
+            /** @var array $language */
+            foreach ($languages as $language) {
+                /** @var GenerateThemeMailTemplatesCommand $generateCommand */
+                $generateCommand = new GenerateThemeMailTemplatesCommand(
+                    'dark_modern',
+                    $language['locale'],
+                    true
+                );
+
+                $commandBus->handle($generateCommand);
+            }
+            $this->addFlash('success', $this->trans('The Dark Theme is generated and set as default theme.', 'Modules.ExampleModuleMailtheme'));
+        } catch (CoreException $e) {
+            $this->addFlash('error', $this->trans(
+                'The Dark Theme cannot be generated: %error%.',
+                'Modules.ExampleModuleMailtheme',
+                ['%error%' => $e->getMessage()]
+            ));
+        }
 
         return $this->redirectToRoute('admin_example_module_mailtheme');
     }
