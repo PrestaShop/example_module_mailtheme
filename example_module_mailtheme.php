@@ -200,21 +200,14 @@ class example_module_mailtheme extends Module
                 continue;
             }
 
+            // First parameter is the layout name, second one is the module name (empty value matches the core layouts)
             $orderConfLayout = $theme->getLayouts()->getLayout('order_conf', '');
-            /** @var LayoutInterface $layout */
-            foreach ($theme->getLayouts() as $layout) {
-                if ('order_conf' === $layout->getName() && empty($layout->getModuleName())) {
-                    $orderConfLayout = $layout;
-                    break;
-                }
-            }
-
-            //Replace the layout in the theme
             if (null === $orderConfLayout) {
                 return;
             }
 
             //The layout collection extends from ArrayCollection so it has more feature than it seems..
+            //It allows to REPLACE the existing layout easily
             $orderIndex = $theme->getLayouts()->indexOf($orderConfLayout);
             $theme->getLayouts()->offsetSet($orderIndex, new Layout(
                 $orderConfLayout->getName(),
