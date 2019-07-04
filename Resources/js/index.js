@@ -1,4 +1,3 @@
-<?php
 /**
  * 2007-2019 PrestaShop SA and Contributors
  *
@@ -24,19 +23,14 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-namespace PrestaShop\Module\ExampleModuleMailtheme\Controller\Admin;
+const $ = require('jquery');
+const colorpicker = require('bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min');
 
-use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
-use Symfony\Component\HttpFoundation\Request;
+//This component comes from PrestaShop core, this path is relative so you need to build assets with your modules
+//installed in a PrestaShop project
+import TranslatableInput from '../../../../admin-dev/themes/new-theme/js/components/translatable-input';
 
-class ExampleModuleMailthemeController extends FrameworkBundleAdminController
-{
-    public function indexAction(Request $request)
-    {
-        return $this->render('@Modules/example_module_mailtheme/views/templates/admin/index.html.twig', [
-            'enableSidebar' => true,
-            //'layoutHeaderToolbarBtn' => $this->getToolbarButtons(),
-            'help_link' => $this->generateSidebarLink($request->attributes->get('_legacy_controller')),
-        ]);
-    }
-}
+$(document).ready(function() {
+  $('.color-picker').colorpicker();
+  new TranslatableInput();
+});

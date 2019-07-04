@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <module>
     <name>example_module_mailtheme</name>
-    <displayName><![CDATA[Example Module Mail Theme]]></displayName>
+    <displayName><![CDATA[Example Module Email Theme]]></displayName>
     <version><![CDATA[1.0.0]]></version>
-    <description><![CDATA[Example module to add a Mail theme to PrestaShop.]]></description>
+    <description><![CDATA[Example module to deal with an Email theme in PrestaShop.]]></description>
     <author><![CDATA[PrestaShop]]></author>
     <tab><![CDATA[]]></tab>
     <is_configurable>1</is_configurable>

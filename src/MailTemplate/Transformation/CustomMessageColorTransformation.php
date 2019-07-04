@@ -42,6 +42,7 @@ class CustomMessageColorTransformation extends AbstractTransformation
 
     /**
      * @param string $customColor
+     *
      * @throws \PrestaShop\PrestaShop\Core\Exception\InvalidArgumentException
      */
     public function __construct($customColor)
@@ -51,7 +52,7 @@ class CustomMessageColorTransformation extends AbstractTransformation
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function apply($templateContent, array $templateVariables)
     {
