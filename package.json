@@ -2,7 +2,6 @@
   "name": "example_module_mailtheme",
   "version": "1.0.0",
   "description": "Example module for PrestaShop mail theme",
-  "main": "install.js",
   "scripts": {
     "build": "webpack --progress --colors --debug --display-chunks --mode=production",
     "dev": "webpack --progress --colors --debug --display-chunks --watch --mode=development",
