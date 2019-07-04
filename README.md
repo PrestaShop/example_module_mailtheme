@@ -3,8 +3,7 @@ Example module to add a Mail theme to PrestaShop.
 
 # Requirements
 
-This module requires PrestaShop 1.7.6 to work correctly. For now its minimum version has been
-set to 1.7.5 because the new version has not been updated in core code.
+This module requires PrestaShop 1.7.6 to work correctly.
 
 # Install
 
